@@ -78,31 +78,38 @@ const initialCountriesList = [
 ]
 
 class Home extends Component {
-  state = {visitCountriesList: []}
+  state = {visitCountriesList: initialCountriesList}
 
   visitCountries = id => {
-    const visitObject = initialCountriesList.map(el =>
-      el.id === id ? {...el, isVisited: true} : el,
-    )
-    const trueList = visitObject.filter(eachItem => eachItem.isVisited === true)
-
-    console.log(visitObject)
     this.setState(prevState => ({
-      visitCountriesList: [...prevState.visitCountriesList, ...trueList],
+      visitCountriesList: prevState.visitCountriesList.map(each => {
+        if (each.id === id) {
+          return {...each, isVisited: true}
+        }
+        return each
+      }),
+    }))
+  }
+
+  removeCountry = id => {
+    this.setState(prevState => ({
+      visitCountriesList: prevState.visitCountriesList.map(each => {
+        if (each.id === id) {
+          return {...each, isVisited: false}
+        }
+        return each
+      }),
     }))
   }
 
   render() {
     const {visitCountriesList} = this.state
-    const list = visitCountriesList.filter(
-      eachItem => eachItem.isVisited === true,
-    )
-
+    const trueList = visitCountriesList.filter(each => each.isVisited === true)
     return (
       <div className="main-container">
         <h1>Countries</h1>
         <ul>
-          {initialCountriesList.map(eachCountry => (
+          {visitCountriesList.map(eachCountry => (
             <CountryItem
               countryDetails={eachCountry}
               key={eachCountry.id}
@@ -111,10 +118,18 @@ class Home extends Component {
           ))}
         </ul>
         <ul>
-          <h1>Visit Countries</h1>
-          {list.map(eachItem => (
-            <VisitCountries visitCountryDetails={eachItem} key={eachItem.id} />
-          ))}
+          <h1>Visited Countries</h1>
+          {trueList.length === 0 ? (
+            <p>No Countries Visited Yet</p>
+          ) : (
+            trueList.map(eachItem => (
+              <VisitCountries
+                visitCountryDetails={eachItem}
+                key={eachItem.id}
+                removeCountry={this.removeCountry}
+              />
+            ))
+          )}
         </ul>
       </div>
     )
